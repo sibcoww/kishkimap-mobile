@@ -6,30 +6,28 @@
     xmlns:local="clr-namespace:NomadGisMobile">
 
     <TabBar>
-        <!-- экран логина (без таб-бара) -->
-        <ShellContent
-            Title="Login"
-            Route="login"
-            ContentTemplate="{DataTemplate local:MainPage}" />
-
         <ShellContent
             Title="Карта"
             Route="map"
+            Icon="map.png"
             ContentTemplate="{DataTemplate local:MapPage}" />
 
         <ShellContent
             Title="Маршруты"
             Route="routes"
+            Icon="routes.png"
             ContentTemplate="{DataTemplate local:RoutesPage}" />
 
         <ShellContent
             Title="Достижения"
             Route="achievements"
+            Icon="achievements.png"
             ContentTemplate="{DataTemplate local:AchievementsPage}" />
 
         <ShellContent
             Title="Профиль"
             Route="profile"
+            Icon="profile.png"
             ContentTemplate="{DataTemplate local:ProfilePage}" />
     </TabBar>
 

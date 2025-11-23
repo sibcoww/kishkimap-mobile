@@ -30,6 +30,16 @@ public partial class MapPage : ContentPage
 
             _mapControl.Map.Layers.Add(OpenStreetMap.CreateTileLayer());
 
+            // Убираем виджеты (логгинг, перформанс и т.п.), если они добавлены
+            try
+            {
+                _mapControl.Map.Widgets.Clear();
+            }
+            catch
+            {
+                // Игнорируем, если API недоступен в рантайме
+            }
+
             // показываем карту на странице
             Content = _mapControl;
         }
@@ -106,15 +116,19 @@ public partial class MapPage : ContentPage
 
             var provider = new MemoryProvider(features);
 
+            // Используем простой символ-указатель (круг с белой обводкой) и смещением вверх
+            var symbolStyle = new SymbolStyle
+            {
+                SymbolScale = 0.9,
+                Fill = new Mapsui.Styles.Brush(Mapsui.Styles.Color.FromArgb(0xFF, 0xE5, 0x30, 0x30)), // более "маркерный" красный
+                Outline = new Mapsui.Styles.Pen(Mapsui.Styles.Color.White, 3),
+                Offset = new Offset(0, -14) // сдвигаем вверх, чтобы центр круга не перекрывал точку
+            };
+
             var layer = new Layer("Points")
             {
                 DataSource = provider,
-                Style = new SymbolStyle
-                {
-                    SymbolScale = 1.0,
-                    Fill = new Mapsui.Styles.Brush(Mapsui.Styles.Color.Red),
-                    Outline = new Mapsui.Styles.Pen(Mapsui.Styles.Color.White, 1)
-                }
+                Style = symbolStyle
             };
 
             map.Layers.Add(layer);
