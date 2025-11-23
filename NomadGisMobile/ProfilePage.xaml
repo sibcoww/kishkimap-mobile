@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="NomadGisMobile.ProfilePage"
+             Title="Профиль">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!-- Аватар -->
+            <Image x:Name="AvatarImage"
+                   HeightRequest="120"
+                   WidthRequest="120"
+                   HorizontalOptions="Center"
+                   Aspect="AspectFill"
+                   BackgroundColor="Gray"
+                   Margin="0,10" />
+
+            <!-- Имя / логин -->
+            <Label x:Name="UsernameLabel"
+                   Text=""
+                   FontSize="24"
+                   HorizontalOptions="Center" />
+
+            <!-- Остальная инфа -->
+            <VerticalStackLayout Spacing="5">
+                <Label x:Name="IdLabel" />
+                <Label x:Name="EmailLabel" />
+                <Label x:Name="LevelLabel" />
+                <Label x:Name="XpLabel" />
+            </VerticalStackLayout>
+            <Button Text="Открыть карту" Clicked="OnMapClicked" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
