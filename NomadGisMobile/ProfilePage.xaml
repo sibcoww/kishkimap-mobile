@@ -27,12 +27,10 @@
 
             <!-- Остальная инфа -->
             <VerticalStackLayout Spacing="5">
-                <Label x:Name="IdLabel" />
                 <Label x:Name="EmailLabel" />
                 <Label x:Name="LevelLabel" />
                 <Label x:Name="XpLabel" />
             </VerticalStackLayout>
-            <Button Text="Открыть карту" Clicked="OnMapClicked" />
 
         </VerticalStackLayout>
     </ScrollView>

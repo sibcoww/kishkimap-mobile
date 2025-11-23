@@ -74,10 +74,9 @@ public partial class ProfilePage : ContentPage
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 UsernameLabel.Text = me.Username;
-                IdLabel.Text = $"ID: {me.Id}";
-                EmailLabel.Text = $"Email: {me.Email}";
-                LevelLabel.Text = $"Level: {me.Level}";
-                XpLabel.Text = $"XP: {me.Experience}";
+                EmailLabel.Text = $"Почта: {me.Email}";
+                LevelLabel.Text = $"Уровень: {me.Level}";
+                XpLabel.Text = $"Опыт: {me.Experience}";
             });
 
             // load avatar safely
