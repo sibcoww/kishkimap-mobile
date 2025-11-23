@@ -5,9 +5,12 @@
              Title="Профиль">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="20">
+        <VerticalStackLayout Spacing="20" Padding="20">
 
-            <!-- Аватар -->
+            <!-- Loading indicator -->
+            <ActivityIndicator x:Name="LoadingIndicator" IsVisible="False" IsRunning="False" HorizontalOptions="Center" />
+
+            <!-- Avatar -->
             <Image x:Name="AvatarImage"
                    HeightRequest="120"
                    WidthRequest="120"
