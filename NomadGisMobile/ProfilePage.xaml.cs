@@ -39,11 +39,12 @@ public partial class ProfilePage : ContentPage
             var token = await SecureStorage.GetAsync("access_token");
             if (string.IsNullOrEmpty(token))
             {
-                var toLogin = await DisplayAlert("Ошибка", "Токен не найден, авторизуйтесь заново", "Перейти", "Отмена");
-                if (toLogin)
-                    await Shell.Current.GoToAsync("login");
+                // show Login button so user can navigate to login screen
+                LoginButton.IsVisible = true;
                 return;
             }
+
+            LoginButton.IsVisible = false;
 
             var api = new ApiClient();
             api.SetBearerToken(token);
@@ -77,6 +78,7 @@ public partial class ProfilePage : ContentPage
                 EmailLabel.Text = $"Почта: {me.Email}";
                 LevelLabel.Text = $"Уровень: {me.Level}";
                 XpLabel.Text = $"Опыт: {me.Experience}";
+                LoginButton.IsVisible = false;
             });
 
             // load avatar safely
@@ -119,9 +121,10 @@ public partial class ProfilePage : ContentPage
         }
     }
 
-    private async void OnMapClicked(object sender, EventArgs e)
+    private async void OnLoginNavClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync(nameof(MapPage));
+        // navigate to login page
+        await Shell.Current.GoToAsync("login");
     }
 
     private async void OnEditClicked(object sender, EventArgs e)

@@ -27,10 +27,16 @@
 
             <!-- Остальная инфа -->
             <VerticalStackLayout Spacing="5">
+                <Label x:Name="IdLabel" />
                 <Label x:Name="EmailLabel" />
                 <Label x:Name="LevelLabel" />
                 <Label x:Name="XpLabel" />
             </VerticalStackLayout>
+
+            <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
+                <Button x:Name="LoginButton" Text="Войти" Clicked="OnLoginNavClicked" IsVisible="False" />
+                <Button Text="Выйти" Clicked="OnLogoutClicked" BackgroundColor="#EEEEEE" TextColor="#333" />
+            </HorizontalStackLayout>
 
         </VerticalStackLayout>
     </ScrollView>
