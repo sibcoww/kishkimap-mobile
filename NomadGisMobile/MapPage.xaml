@@ -1,6 +1,39 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mapsui="clr-namespace:Mapsui.UI.Maui;assembly=Mapsui.UI.Maui"
              x:Class="NomadGisMobile.MapPage"
              Title="Карта">
+
+    <Grid>
+
+        <!-- сама карта -->
+        <mapsui:MapControl x:Name="MapView" />
+
+        <!-- карточка выбранной точки -->
+        <Frame x:Name="PointCard"
+               IsVisible="False"
+               Padding="16"
+               Margin="16"
+               VerticalOptions="End"
+               HorizontalOptions="FillAndExpand"
+               CornerRadius="24"
+               HasShadow="True"
+               BackgroundColor="#FFFFFFFF">
+
+            <VerticalStackLayout Spacing="6">
+                <Label x:Name="PointTitleLabel"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       TextColor="#111827" />
+
+                <Label x:Name="PointDescriptionLabel"
+                       FontSize="14"
+                       TextColor="#4B5563"
+                       LineBreakMode="WordWrap"
+                       MaxLines="4" />
+            </VerticalStackLayout>
+        </Frame>
+
+    </Grid>
 </ContentPage>
