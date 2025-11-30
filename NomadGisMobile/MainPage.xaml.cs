@@ -10,6 +10,7 @@ public partial class MainPage : ContentPage
     public MainPage()
     {
         InitializeComponent();
+        Shell.SetNavBarIsVisible(this, false);
     }
 
     private async void OnLoginClicked(object sender, EventArgs e)
