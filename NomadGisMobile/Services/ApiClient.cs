@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using Microsoft.Maui.Storage;
 using System;
+using System.Threading.Tasks;
 
 namespace NomadGisMobile.Services
 {
@@ -19,10 +20,9 @@ namespace NomadGisMobile.Services
             _httpClient = new HttpClient
             {
                 BaseAddress = new Uri("https://nomad-gis-api-7d6a.onrender.com"),
-                Timeout = TimeSpan.FromSeconds(15) // prevent indefinite hangs
+                Timeout = TimeSpan.FromSeconds(15)
             };
 
-            // Настройки JSON — camelCase + нечувствительность регистра
             _jsonOptions = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -33,97 +33,118 @@ namespace NomadGisMobile.Services
         public void SetBearerToken(string token)
         {
             _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", token);
+                string.IsNullOrWhiteSpace(token)
+                    ? null
+                    : new AuthenticationHeaderValue("Bearer", token);
         }
 
-        // POST-запрос с телом
         public async Task<T?> PostAsync<T>(string url, object body)
         {
             try
             {
-                if (_httpClient == null)
-                    throw new InvalidOperationException("HttpClient is null");
-
                 var json = JsonSerializer.Serialize(body, _jsonOptions);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = await _httpClient.PostAsync(url, content);
+                var response = await _httpClient.PostAsync(url, content)
+                                                .ConfigureAwait(false);
+
                 if (!response.IsSuccessStatusCode)
                 {
-                    Debug.WriteLine($"POST {url} returned {(int)response.StatusCode} {response.ReasonPhrase}");
+                    var respText = response.Content == null
+                        ? string.Empty
+                        : await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
                     AppendLog($"POST {url} returned {(int)response.StatusCode} {response.ReasonPhrase}");
+                    if (!string.IsNullOrEmpty(respText))
+                        AppendLog($"POST {url} body: {Trim(respText, 1000)}");
+
                     return default;
                 }
 
-                var responseText = response.Content == null ? null : await response.Content.ReadAsStringAsync();
-                if (responseText == null)
+                var responseText = response.Content == null
+                    ? null
+                    : await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+                if (string.IsNullOrEmpty(responseText))
                 {
-                    Debug.WriteLine($"POST {url} returned empty content");
                     AppendLog($"POST {url} returned empty content");
                     return default;
                 }
 
-                AppendLog($"POST {url} success: {responseText.Substring(0, Math.Min(500, responseText.Length))}");
+                AppendLog($"POST {url} success: {Trim(responseText, 500)}");
                 return JsonSerializer.Deserialize<T>(responseText, _jsonOptions);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Exception in PostAsync to {url}: {ex}");
                 AppendLog($"Exception in PostAsync to {url}: {ex}");
                 throw new Exception($"PostAsync failed for {url}: {ex.Message}", ex);
             }
         }
 
-        // GET-запрос без тела
         public async Task<T?> GetAsync<T>(string url)
         {
             try
             {
-                if (_httpClient == null)
-                    throw new InvalidOperationException("HttpClient is null");
-
                 AppendLog($"GET {url} starting");
-                Debug.WriteLine($"GET {url} starting");
 
-                var response = await _httpClient.GetAsync(url);
+                var response = await _httpClient.GetAsync(url)
+                                                .ConfigureAwait(false);
+
                 var status = (int)response.StatusCode;
                 if (!response.IsSuccessStatusCode)
                 {
-                    var respText = response.Content == null ? string.Empty : await response.Content.ReadAsStringAsync();
-                    Debug.WriteLine($"GET {url} returned {status} {response.ReasonPhrase}");
+                    var respText = response.Content == null
+                        ? string.Empty
+                        : await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
                     AppendLog($"GET {url} returned {status} {response.ReasonPhrase}");
                     if (!string.IsNullOrEmpty(respText))
-                        AppendLog($"GET {url} body: {respText.Substring(0, Math.Min(1000, respText.Length))}");
+                        AppendLog($"GET {url} body: {Trim(respText, 1000)}");
 
                     return default;
                 }
 
-                var responseText = response.Content == null ? null : await response.Content.ReadAsStringAsync();
-                if (responseText == null)
+                var responseText = response.Content == null
+                    ? null
+                    : await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+                if (string.IsNullOrEmpty(responseText))
                 {
-                    Debug.WriteLine($"GET {url} returned empty content");
                     AppendLog($"GET {url} returned empty content");
                     return default;
                 }
 
-                AppendLog($"GET {url} success: {responseText.Substring(0, Math.Min(1000, responseText.Length))}");
+                AppendLog($"GET {url} success: {Trim(responseText, 1000)}");
                 return JsonSerializer.Deserialize<T>(responseText, _jsonOptions);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Exception in GetAsync to {url}: {ex}");
                 AppendLog($"Exception in GetAsync to {url}: {ex}");
                 throw new Exception($"GetAsync failed for {url}: {ex.Message}", ex);
             }
         }
 
+        private static string Trim(string text, int maxLen)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+            return text.Length <= maxLen ? text : text.Substring(0, maxLen);
+        }
+
         private void AppendLog(string text)
         {
+            // Лог пишем с бэкграунд-потока, чтобы не блокировать UI
             try
             {
-                var path = Path.Combine(FileSystem.AppDataDirectory, "profile_debug.log");
-                var line = DateTime.UtcNow.ToString("o") + " " + text + Environment.NewLine;
-                File.AppendAllText(path, line);
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        var path = Path.Combine(FileSystem.AppDataDirectory, "profile_debug.log");
+                        var line = DateTime.UtcNow.ToString("o") + " " + text + Environment.NewLine;
+                        File.AppendAllText(path, line);
+                    }
+                    catch { }
+                });
             }
             catch { }
         }

@@ -1,71 +1,58 @@
-﻿using NomadGisMobile.Services;
-using NomadGisMobile.Models;
+﻿using Microsoft.Maui.Controls;
+using NomadGisMobile.Services;
 using Microsoft.Maui.Storage;
+using System;
 
 namespace NomadGisMobile;
 
 public partial class MainPage : ContentPage
 {
-    private readonly AuthService _authService;
-
     public MainPage()
     {
         InitializeComponent();
-        Shell.SetTabBarIsVisible(this, false); // скрыть вкладки на логине
-
-        // Инициализация, чтобы избежать NullReferenceException при авторизации
-        _authService = new AuthService(new ApiClient());
     }
-
 
     private async void OnLoginClicked(object sender, EventArgs e)
     {
+        LoadingIndicator.IsVisible = true;
+        LoadingIndicator.IsRunning = true;
+        LoginButton.IsEnabled = false;
+
         try
         {
-            if (StatusLabel != null)
-                StatusLabel.Text = "";
-
-            if (EmailEntry == null || PasswordEntry == null)
-            {
-                await DisplayAlert("Ошибка", "UI элементы не инициализированы", "OK");
-                return;
-            }
-
             var email = EmailEntry.Text?.Trim();
-            var password = PasswordEntry.Text;
+            var password = PasswordEntry.Text?.Trim();
 
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
-                if (StatusLabel != null)
-                    StatusLabel.Text = "Введите email и пароль";
+                await DisplayAlert("Ошибка", "Введите почту и пароль", "OK");
                 return;
             }
 
-            if (_authService == null)
+            var api = new ApiClient();
+            var auth = new AuthService(api);
+
+            var result = await auth.LoginAsync(email, password);
+
+            if (result == null)
             {
-                await DisplayAlert("Ошибка", "_authService == null", "OK");
+                await DisplayAlert("Ошибка", "Неверные данные", "OK");
                 return;
             }
 
-            var result = await _authService.LoginAsync(email, password);
+            await SecureStorage.SetAsync("access_token", result.AccessToken);
 
-            if (result == null || string.IsNullOrEmpty(result.AccessToken))
-            {
-                if (StatusLabel != null)
-                    StatusLabel.Text = "Ошибка авторизации";
-            }
-            else
-            {
-                await SecureStorage.SetAsync("access_token", result.AccessToken);
-
-                // переходим на вкладку "Карта" и показываем нижнее меню
-                await Shell.Current.GoToAsync("//map");
-            }
+            await Shell.Current.GoToAsync("//profile");
         }
         catch (Exception ex)
         {
-            // Показать стек в UI, чтобы понять где именно NRE происходит
-            await DisplayAlert("Unhandled exception", ex.ToString(), "OK");
+            await DisplayAlert("Ошибка", ex.Message, "OK");
+        }
+        finally
+        {
+            LoadingIndicator.IsVisible = false;
+            LoadingIndicator.IsRunning = false;
+            LoginButton.IsEnabled = true;
         }
     }
 }

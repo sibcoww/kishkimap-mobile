@@ -1,43 +1,121 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="NomadGisMobile.ProfilePage"
-             Title="Профиль">
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="NomadGisMobile.ProfilePage"
+    Title="Профиль">
 
-    <ScrollView>
-        <VerticalStackLayout Spacing="20" Padding="20">
+    <Grid Padding="24,40"
+          BackgroundColor="#F5F5F8">
 
-            <!-- Loading indicator -->
-            <ActivityIndicator x:Name="LoadingIndicator" IsVisible="False" IsRunning="False" HorizontalOptions="Center" />
+        <VerticalStackLayout Spacing="20"
+                             VerticalOptions="Start"
+                             HorizontalOptions="Center">
+            <!-- Аватар + имя -->
+            <VerticalStackLayout Spacing="8"
+                                 HorizontalOptions="Center">
 
-            <!-- Avatar -->
-            <Image x:Name="AvatarImage"
-                   HeightRequest="120"
-                   WidthRequest="120"
-                   HorizontalOptions="Center"
-                   Aspect="AspectFill"
-                   BackgroundColor="Gray"
-                   Margin="0,10" />
+                <!-- Аватар -->
+                <Border Stroke="LightGray"
+                        StrokeThickness="1"
+                        Background="White"
+                        Padding="0"
+                        HeightRequest="140"
+                        WidthRequest="140"
+                        HorizontalOptions="Center"
+                        StrokeShape="RoundRectangle 70">
+                    <Image x:Name="AvatarImage"
+                           Aspect="AspectFill" />
+                </Border>
 
-            <!-- Имя / логин -->
-            <Label x:Name="UsernameLabel"
-                   Text=""
-                   FontSize="24"
-                   HorizontalOptions="Center" />
+                <!-- Имя -->
+                <Label x:Name="UsernameLabel"
+                       FontSize="22"
+                       FontAttributes="Bold"
+                       TextColor="Black"
+                       HorizontalOptions="Center" />
 
-            <!-- Остальная инфа -->
-            <VerticalStackLayout Spacing="5">
-                <Label x:Name="IdLabel" />
-                <Label x:Name="EmailLabel" />
-                <Label x:Name="LevelLabel" />
-                <Label x:Name="XpLabel" />
+                <!-- Почта -->
+                <Label x:Name="EmailLabel"
+                       FontSize="14"
+                       Opacity="0.7"
+                       HorizontalOptions="Center" />
             </VerticalStackLayout>
 
-            <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
-                <Button x:Name="LoginButton" Text="Войти" Clicked="OnLoginNavClicked" IsVisible="False" />
-                <Button Text="Выйти" Clicked="OnLogoutClicked" BackgroundColor="#EEEEEE" TextColor="#333" />
-            </HorizontalStackLayout>
+            <!-- Карточка статистики -->
+            <Border BackgroundColor="White"
+                    Stroke="#E5E7EB"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 18"
+                    Padding="16"
+                    WidthRequest="320">
+
+                <VerticalStackLayout Spacing="12">
+
+                    <!-- Верхняя строка: уровень + общий опыт -->
+                    <Grid ColumnDefinitions="*,*">
+                        <VerticalStackLayout Spacing="2"
+                                             Grid.Column="0">
+                            <Label Text="Уровень"
+                                   FontSize="12"
+                                   TextColor="#6B7280" />
+                            <Label x:Name="LevelLabel"
+                                   FontSize="20"
+                                   FontAttributes="Bold"
+                                   TextColor="Black" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="2"
+                                             Grid.Column="1"
+                                             HorizontalOptions="End">
+                            <Label Text="Всего опыта"
+                                   FontSize="12"
+                                   TextColor="#6B7280"
+                                   HorizontalOptions="End" />
+                            <Label x:Name="XpTotalLabel"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="Black"
+                                   HorizontalOptions="End" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Прогресс до следующего уровня -->
+                    <!-- Прогресс до следующего уровня -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label x:Name="XpProgressTextLabel"
+                                   FontSize="12"
+                                   TextColor="#6B7280" />
+                        <ProgressBar x:Name="XpProgressBar"
+                                     HeightRequest="8"
+                                     Progress="0" />            
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Кнопки -->
+            <VerticalStackLayout Spacing="12"
+                                 HorizontalOptions="Center">
+
+                <Button Text="Редактировать профиль"
+                        CornerRadius="20"
+                        HeightRequest="48"
+                        WidthRequest="260"
+                        BackgroundColor="#3B82F6"
+                        TextColor="White"
+                        Clicked="OnEditClicked" />
+
+                <Button Text="Выйти"
+                        CornerRadius="20"
+                        HeightRequest="48"
+                        WidthRequest="260"
+                        BackgroundColor="#F3F4F6"
+                        TextColor="Black"
+                        Clicked="OnLogoutClicked" />
+            </VerticalStackLayout>
 
         </VerticalStackLayout>
-    </ScrollView>
+
+    </Grid>
 </ContentPage>

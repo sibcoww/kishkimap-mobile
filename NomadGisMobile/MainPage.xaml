@@ -1,36 +1,68 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="NomadGisMobile.MainPage"
-             Title="Login">
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="NomadGisMobile.MainPage"
+    Title="Авторизация">
 
-    <ScrollView>
-        <VerticalStackLayout
-            Padding="20"
-            Spacing="15"
-            VerticalOptions="Center">
+    <ContentPage.Content>
+        <Grid Padding="24,40"
+              BackgroundColor="#F5F5F8">
 
-            <Label Text="Kishki MAP"
-                   FontSize="28"
-                   HorizontalOptions="Center" />
+            <VerticalStackLayout Spacing="24"
+                                 VerticalOptions="Center">
 
-            <Entry x:Name="EmailEntry"
-                   Placeholder="Email"
-                   Keyboard="Email" />
+                <!-- Заголовок -->
+                <Label Text="Вход"
+                       FontSize="32"
+                       FontAttributes="Bold"
+                       TextColor="Black" />
 
-            <Entry x:Name="PasswordEntry"
-                   Placeholder="Пароль"
-                   IsPassword="True" />
+                <Label Text="Войдите, чтобы увидеть карту и свои точки"
+                       FontSize="14"
+                       TextColor="#6B7280" />
 
-            <Button Text="Войти"
-                    Clicked="OnLoginClicked" />
+                <!-- Карточка логина -->
+                <Frame CornerRadius="24"
+                       Padding="20"
+                       BackgroundColor="White"
+                       HasShadow="True">
 
-            <Label x:Name="StatusLabel"
-                   Text=""
-                   TextColor="Red"
-                   HorizontalOptions="Center" />
-        </VerticalStackLayout>
-    </ScrollView>
+                    <VerticalStackLayout Spacing="16">
+
+                        <Label Text="Email" FontSize="14" />
+                        <Entry x:Name="EmailEntry"
+                               Placeholder="you@example.com"
+                               Keyboard="Email" />
+
+                        <Label Text="Пароль" FontSize="14" />
+                        <Entry x:Name="PasswordEntry"
+                               Placeholder="••••••••"
+                               IsPassword="True" />
+
+                        <Label x:Name="UsernameLabel"
+                               Text=""
+                               FontSize="14"
+                               TextColor="#10B981"
+                               IsVisible="False" />
+
+                        <Button x:Name="LoginButton"
+                                Text="Войти"
+                                CornerRadius="20"
+                                HeightRequest="48"
+                                BackgroundColor="#3B82F6"
+                                TextColor="White"
+                                Clicked="OnLoginClicked" />
+
+                        <ActivityIndicator x:Name="LoadingIndicator"
+                                           IsVisible="False"
+                                           IsRunning="False"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                    </VerticalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </Grid>
+    </ContentPage.Content>
 </ContentPage>
-
-
