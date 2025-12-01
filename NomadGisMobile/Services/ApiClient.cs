@@ -7,6 +7,10 @@ using System.IO;
 using Microsoft.Maui.Storage;
 using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.IO;
+using System.Collections.Generic;
+
 
 namespace NomadGisMobile.Services
 {
@@ -121,6 +125,69 @@ namespace NomadGisMobile.Services
             {
                 AppendLog($"Exception in GetAsync to {url}: {ex}");
                 throw new Exception($"GetAsync failed for {url}: {ex.Message}", ex);
+            }
+        }
+        public async Task<bool> PostFileAsync(string url, string fieldName, string fileName, Stream fileStream)
+        {
+            try
+            {
+                using var content = new MultipartFormDataContent();
+
+                var fileContent = new StreamContent(fileStream);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue("image/*"); // можно image/jpeg
+
+                // !!! fieldName нужно подогнать под Swagger
+                // если в Swagger другое имя (например "avatar" или "avatarFile")
+                // поменяй "file" на нужное
+                content.Add(fileContent, fieldName, fileName);
+
+                AppendLog($"POST file {url} starting");
+                var response = await _httpClient.PostAsync(url, content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var body = response.Content == null
+                        ? string.Empty
+                        : await response.Content.ReadAsStringAsync();
+
+                    AppendLog($"POST {url} returned {(int)response.StatusCode} {response.ReasonPhrase}. Body: {body}");
+                    return false;
+                }
+
+                AppendLog($"POST {url} success");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AppendLog($"Exception in PostFileAsync to {url}: {ex}");
+                throw new Exception($"PostFileAsync failed for {url}: {ex.Message}", ex);
+            }
+        }
+        public async Task PutMultipartAsync(string url, MultipartFormDataContent content)
+        {
+            try
+            {
+                AppendLog($"PUT multipart {url} starting");
+
+                var response = await _httpClient.PutAsync(url, content);
+                var status = (int)response.StatusCode;
+                var reason = response.ReasonPhrase;
+
+                string body = "";
+                if (response.Content != null)
+                    body = await response.Content.ReadAsStringAsync();
+
+                AppendLog($"PUT multipart {url} status {status} {reason}");
+                if (!string.IsNullOrEmpty(body))
+                    AppendLog($"PUT multipart {url} body: {body}");
+
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"HTTP {status} {reason}\n{body}");
+            }
+            catch (Exception ex)
+            {
+                AppendLog($"Exception in PutMultipartAsync {url}: {ex}");
+                throw;
             }
         }
 
