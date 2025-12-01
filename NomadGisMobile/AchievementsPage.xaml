@@ -4,11 +4,38 @@
              x:Class="NomadGisMobile.AchievementsPage"
              Title="Достижения">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="10">
-            <Label Text="Здесь будут достижения"
-                   FontSize="20"
-                   HorizontalOptions="Center" />
-        </VerticalStackLayout>
-    </ScrollView>
+    <ContentPage.Content>
+        <Grid Padding="24,24"
+              BackgroundColor="#F5F5F8">
+
+            <ScrollView>
+                <VerticalStackLayout Spacing="16">
+
+                    <!-- Заголовок -->
+                    <Label Text="Достижения"
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           TextColor="Black" />
+
+                    <!-- Статус / подсказка -->
+                    <Label x:Name="StatusLabel"
+                           FontSize="14"
+                           TextColor="#6B7280" />
+
+                    <!-- Индикатор загрузки -->
+                    <ActivityIndicator x:Name="LoadingIndicator"
+                                       IsVisible="False"
+                                       IsRunning="False"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+
+                    <!-- Контейнер для карточек ачивок -->
+                    <VerticalStackLayout x:Name="AchievementsList"
+                                         Spacing="12" />
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
+    </ContentPage.Content>
+
 </ContentPage>
