@@ -151,7 +151,13 @@ public partial class AchievementsPage : ContentPage
                 vertical.Children.Add(bottomRow);
                 frame.Content = vertical;
 
-                // чуть приглушим заблокированные
+                // Жест нажатия
+                var tap = new TapGestureRecognizer
+                {
+                    Command = new Command(async () => await ShowAchievementDetailsAsync(a, isUnlocked))
+                };
+                frame.GestureRecognizers.Add(tap);
+
                 if (!isUnlocked)
                 {
                     frame.Opacity = 0.8;
@@ -172,4 +178,28 @@ public partial class AchievementsPage : ContentPage
             _isLoading = false;
         }
     }
+    private async Task ShowAchievementDetailsAsync(AchievementResponse a, bool isUnlocked)
+    {
+        var title = string.IsNullOrWhiteSpace(a.Title) ? "Достижение" : a.Title;
+
+        var sb = new System.Text.StringBuilder();
+
+        if (!string.IsNullOrWhiteSpace(a.Description))
+        {
+            sb.AppendLine(a.Description);
+            sb.AppendLine();
+        }
+
+        sb.AppendLine(isUnlocked ? "Статус: получено ?" : "Статус: не получено ?");
+        sb.AppendLine($"Награда: +{a.RewardPoints} XP");
+
+        if (!string.IsNullOrWhiteSpace(a.Code))
+        {
+            sb.AppendLine();
+            sb.AppendLine($"Код ачивки: {a.Code}");
+        }
+
+        await DisplayAlert(title, sb.ToString(), "OK");
+    }
+
 }
