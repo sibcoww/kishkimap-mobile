@@ -4,11 +4,6 @@ using NomadGisMobile.Models;
 using NomadGisMobile.Services;
 using System;
 using System.Threading.Tasks;
-using System.Xml;
-using Microsoft.Maui.ApplicationModel; // MediaPicker
-using System.IO;
-
-
 
 namespace NomadGisMobile;
 
@@ -36,61 +31,69 @@ public partial class ProfilePage : ContentPage
 
         try
         {
-            // 1. Достаём токен
             var token = await SecureStorage.GetAsync("access_token");
-            if (string.IsNullOrEmpty(token))
+
+            if (string.IsNullOrWhiteSpace(token))
             {
-                // нет токена – юзер не залогинен
+                // ---- ГОСТЕВОЙ РЕЖИМ ----
                 UsernameLabel.Text = "Гость";
                 EmailLabel.Text = "Вы не авторизованы";
                 LevelLabel.Text = "-";
                 XpTotalLabel.Text = "-";
+                AvatarImage.Source = "profile_placeholder.png"; // или любой дефолтный
+
+                AuthButtonsPanel.IsVisible = false;
+                GuestButtonsPanel.IsVisible = true;
+
                 _isLoadingProfile = false;
                 return;
             }
 
-            // 2. Настраиваем клиента
+            // ---- ЗАЛОГИНЕННЫЙ ПОЛЬЗОВАТЕЛЬ ----
             var api = new ApiClient();
             api.SetBearerToken(token);
 
             var profileService = new ProfileService(api);
-
-            // 3. Получаем профиль
             ProfileMeDto? me = await profileService.GetMeAsync();
 
             if (me == null)
             {
                 await DisplayAlert("Ошибка", "Не удалось загрузить профиль.", "OK");
-                _isLoadingProfile = false;
+                // считаем его гостем
+                AuthButtonsPanel.IsVisible = false;
+                GuestButtonsPanel.IsVisible = true;
+                UsernameLabel.Text = "Гость";
+                EmailLabel.Text = "Вы не авторизованы";
+                LevelLabel.Text = "-";
+                XpTotalLabel.Text = "-";
                 return;
             }
 
-            // 4. Обновляем UI
-            MainThread.BeginInvokeOnMainThread(() =>
+            AuthButtonsPanel.IsVisible = true;
+            GuestButtonsPanel.IsVisible = false;
+
+            UsernameLabel.Text = string.IsNullOrWhiteSpace(me.Username) ? "Без имени" : me.Username;
+            EmailLabel.Text = string.IsNullOrWhiteSpace(me.Email) ? "" : $"Почта: {me.Email}";
+            LevelLabel.Text = me.Level.ToString();
+            XpTotalLabel.Text = me.Experience.ToString();
+
+            if (!string.IsNullOrWhiteSpace(me.AvatarUrl))
             {
-                UsernameLabel.Text = string.IsNullOrWhiteSpace(me.Username) ? "Без имени" : me.Username;
-                EmailLabel.Text = string.IsNullOrWhiteSpace(me.Email) ? "" : $"Почта: {me.Email}";
-
-                LevelLabel.Text = me.Level.ToString();
-                XpTotalLabel.Text = me.Experience.ToString();
-
-                // аватар
-                if (!string.IsNullOrWhiteSpace(me.AvatarUrl))
+                try
                 {
-                    try
-                    {
-                        AvatarImage.Source = ImageSource.FromUri(new Uri(me.AvatarUrl));
-                    }
-                    catch
-                    {
-                        // если картинка не загрузилась – просто игнорируем
-                    }
+                    AvatarImage.Source = ImageSource.FromUri(new Uri(me.AvatarUrl));
                 }
-            });
+                catch
+                {
+                    // игнорируем ошибку загрузки аватара
+                }
+            }
         }
         catch (Exception ex)
         {
             await DisplayAlert("Ошибка", $"Не удалось загрузить профиль: {ex.Message}", "OK");
+            AuthButtonsPanel.IsVisible = false;
+            GuestButtonsPanel.IsVisible = true;
         }
         finally
         {
@@ -107,125 +110,33 @@ public partial class ProfilePage : ContentPage
         try
         {
             SecureStorage.Remove("access_token");
+            SecureStorage.Remove("refresh_token");
         }
-        catch
-        {
-            // игнор
-        }
+        catch { }
 
-        // переход на страницу логина
+        // после выхода – гость
+        AuthButtonsPanel.IsVisible = false;
+        GuestButtonsPanel.IsVisible = true;
+        UsernameLabel.Text = "Гость";
+        EmailLabel.Text = "Вы не авторизованы";
+        LevelLabel.Text = "-";
+        XpTotalLabel.Text = "-";
+
         await Shell.Current.GoToAsync("login");
     }
+
     private async void OnEditClicked(object sender, EventArgs e)
     {
-        // проверяем токен
-        var token = await SecureStorage.GetAsync("access_token");
-        if (string.IsNullOrEmpty(token))
-        {
-            await DisplayAlert("Авторизация",
-                "Вы не авторизованы. Войдите в аккаунт.",
-                "OK");
-            return;
-        }
-
-        // 1. новое имя
-        var currentName = UsernameLabel.Text == "Гость" ? "" : UsernameLabel.Text;
-        var newName = await DisplayPromptAsync(
-            "Имя пользователя",
-            "Введите новое имя (оставьте пустым, если не менять):",
-            initialValue: currentName);
-
-        if (newName == null)
-            return; // пользователь нажал Cancel
-
-        // 2. нужно ли менять пароль?
-        string? currentPassword = null;
-        string? newPassword = null;
-
-        var changePassword = await DisplayAlert(
-            "Смена пароля",
-            "Хотите сменить пароль?",
-            "Да", "Нет");
-
-        if (changePassword)
-        {
-            currentPassword = await DisplayPromptAsync(
-                "Текущий пароль",
-                "Введите текущий пароль:");
-
-            if (currentPassword == null)
-                return;
-
-            newPassword = await DisplayPromptAsync(
-                "Новый пароль",
-                "Введите новый пароль:");
-
-            if (newPassword == null)
-                return;
-        }
-
-        try
-        {
-            var api = new ApiClient();
-            api.SetBearerToken(token);
-            var service = new ProfileService(api);
-
-            await service.UpdateProfileAsync(
-                string.IsNullOrWhiteSpace(newName) ? null : newName,
-                currentPassword,
-                newPassword);
-
-            await DisplayAlert("Профиль", "Данные профиля обновлены.", "OK");
-
-            // перечитываем профиль, чтобы обновилось имя и т.п.
-            await LoadProfileAsync();
-        }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Ошибка",
-                $"Не удалось обновить профиль: {ex.Message}",
-                "OK");
-        }
+        await DisplayAlert("Редактирование", "Редактирование профиля будет добавлено позже.", "OK");
     }
 
-    //private async Task ChangeAvatarAsync()
-    //{
-    //    try
-    //    {
-    //        var photo = await MediaPicker.PickPhotoAsync(new MediaPickerOptions
-    //        {
-    //            Title = "Выберите фото для аватара"
-    //        });
+    private async void OnLoginClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("login");
+    }
 
-    //        if (photo == null)
-    //            return;
-
-    //        using var stream = await photo.OpenReadAsync();
-
-    //        var token = await SecureStorage.GetAsync("access_token");
-    //        if (string.IsNullOrEmpty(token))
-    //        {
-    //            await DisplayAlert("Авторизация", "Вы не авторизованы.", "OK");
-    //            return;
-    //        }
-
-    //        var api = new ApiClient();
-    //        api.SetBearerToken(token);
-    //        var profileService = new ProfileService(api);
-
-    //        // если сервер недоволен — здесь вылетит Exception с текстом ответа
-    //        await profileService.UploadAvatarAsync(stream, photo.FileName);
-
-    //        // если всё ок – перезагружаем профиль
-    //        await LoadProfileAsync();
-    //        await DisplayAlert("Аватар", "Аватар успешно обновлён.", "OK");
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        await DisplayAlert("Ошибка загрузки аватара", ex.Message, "OK");
-    //    }
-    //}
-
-
-
+    private async void OnRegisterClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync(nameof(RegisterPage));
+    }
 }

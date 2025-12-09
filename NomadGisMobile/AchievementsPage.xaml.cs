@@ -18,10 +18,25 @@ public partial class AchievementsPage : ContentPage
         InitializeComponent();
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        _ = LoadAchievementsAsync();
+
+        var token = await SecureStorage.GetAsync("access_token");
+
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            await DisplayAlert(
+                "“ребуетс€ вход",
+                "ƒостижени€ доступны только дл€ авторизованных пользователей.",
+                "¬ойти");
+
+            await Shell.Current.GoToAsync("login");
+            return;
+        }
+
+        // если пользователь залогинен Ц загружаем ачивки как раньше
+        await LoadAchievementsAsync();
     }
 
     private async Task LoadAchievementsAsync()
@@ -177,6 +192,7 @@ public partial class AchievementsPage : ContentPage
             LoadingIndicator.IsVisible = false;
             _isLoading = false;
         }
+
     }
     private async Task ShowAchievementDetailsAsync(AchievementResponse a, bool isUnlocked)
     {

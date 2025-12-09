@@ -50,9 +50,24 @@ public partial class RoutesPage : ContentPage
         InitHandlers();
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        var token = await SecureStorage.GetAsync("access_token");
+
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            await DisplayAlert(
+                "Требуется вход",
+                "Маршруты доступны только для авторизованных пользователей.",
+                "Войти");
+
+            await Shell.Current.GoToAsync("login");
+            return;
+        }
+
+        // если токен есть – ведём себя как раньше
         RefreshRoutePointsList();
         UpdateMiniMapMarkers();
     }

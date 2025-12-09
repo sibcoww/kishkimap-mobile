@@ -1,121 +1,146 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage
-    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    x:Class="NomadGisMobile.ProfilePage"
-    Title="Профиль">
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="NomadGisMobile.ProfilePage"
+             Title="Профиль">
 
-    <Grid Padding="24,40"
-          BackgroundColor="#F5F5F8">
+    <ScrollView>
+        <Grid Padding="24,40"
+              BackgroundColor="#F5F5F8">
 
-        <VerticalStackLayout Spacing="20"
-                             VerticalOptions="Start"
-                             HorizontalOptions="Center">
-            <!-- Аватар + имя -->
-            <VerticalStackLayout Spacing="8"
-                                 HorizontalOptions="Center">
+            <VerticalStackLayout Spacing="24">
 
-                <!-- Аватар -->
-                <Border Stroke="LightGray"
-                        StrokeThickness="1"
-                        Background="White"
-                        Padding="0"
-                        HeightRequest="140"
-                        WidthRequest="140"
-                        HorizontalOptions="Center"
-                        StrokeShape="RoundRectangle 70">
-                    <Image x:Name="AvatarImage"
-                           Aspect="AspectFill" />
-                </Border>
-
-                <!-- Имя -->
-                <Label x:Name="UsernameLabel"
-                       FontSize="22"
+                <!-- Заголовок -->
+                <Label Text="Профиль"
+                       FontSize="28"
                        FontAttributes="Bold"
-                       TextColor="Black"
-                       HorizontalOptions="Center" />
+                       TextColor="Black" />
 
-                <!-- Почта -->
-                <Label x:Name="EmailLabel"
-                       FontSize="14"
-                       Opacity="0.7"
-                       HorizontalOptions="Center" />
-            </VerticalStackLayout>
+                <!-- Карточка пользователя -->
+                <Frame HasShadow="True"
+                       CornerRadius="24"
+                       Padding="20"
+                       BackgroundColor="White">
 
-            <!-- Карточка статистики -->
-            <Border BackgroundColor="White"
-                    Stroke="#E5E7EB"
-                    StrokeThickness="1"
-                    StrokeShape="RoundRectangle 18"
-                    Padding="16"
-                    WidthRequest="320">
+                    <VerticalStackLayout Spacing="16"
+                                         HorizontalOptions="Center">
 
-                <VerticalStackLayout Spacing="12">
+                        <!-- Аватар -->
+                        <Frame HeightRequest="140"
+                               WidthRequest="140"
+                               Padding="0"
+                               CornerRadius="70"
+                               HasShadow="False"
+                               BackgroundColor="#E5E7EB">
+                            <Image x:Name="AvatarImage"
+                                   Aspect="AspectFill" />
+                        </Frame>
 
-                    <!-- Верхняя строка: уровень + общий опыт -->
-                    <Grid ColumnDefinitions="*,*">
-                        <VerticalStackLayout Spacing="2"
-                                             Grid.Column="0">
-                            <Label Text="Уровень"
-                                   FontSize="12"
-                                   TextColor="#6B7280" />
-                            <Label x:Name="LevelLabel"
-                                   FontSize="20"
-                                   FontAttributes="Bold"
-                                   TextColor="Black" />
+                        <!-- Имя -->
+                        <Label x:Name="UsernameLabel"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="Black" />
+
+                        <!-- Почта -->
+                        <Label x:Name="EmailLabel"
+                               FontSize="14"
+                               Opacity="0.7"
+                               HorizontalOptions="Center" />
+
+                        <!-- Статы -->
+                        <Grid ColumnDefinitions="*,*"
+                              Margin="0,12,0,0">
+                            <Frame Grid.Column="0"
+                                   Padding="12,8"
+                                   CornerRadius="16"
+                                   HasShadow="False"
+                                   BackgroundColor="#F2F3F7">
+                                <VerticalStackLayout Spacing="2"
+                                                     HorizontalOptions="Center">
+                                    <Label Text="Уровень"
+                                           FontSize="12"
+                                           Opacity="0.6"
+                                           HorizontalOptions="Center" />
+                                    <Label x:Name="LevelLabel"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
+
+                            <Frame Grid.Column="1"
+                                   Padding="12,8"
+                                   CornerRadius="16"
+                                   HasShadow="False"
+                                   BackgroundColor="#F2F3F7"
+                                   Margin="8,0,0,0">
+                                <VerticalStackLayout Spacing="2"
+                                                     HorizontalOptions="Center">
+                                    <Label Text="Опыт"
+                                           FontSize="12"
+                                           Opacity="0.6"
+                                           HorizontalOptions="Center" />
+                                    <Label x:Name="XpTotalLabel"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Frame>
+                        </Grid>
+
+                        <!-- КНОПКИ ДЛЯ ЗАЛОГИНЕННОГО -->
+                        <VerticalStackLayout x:Name="AuthButtonsPanel"
+                                             Spacing="12"
+                                             Margin="0,16,0,0">
+                            <Button Text="Редактировать профиль"
+                                    CornerRadius="20"
+                                    HeightRequest="48"
+                                    BackgroundColor="#3B82F6"
+                                    TextColor="White"
+                                    Clicked="OnEditClicked" />
+
+                            <Button Text="Выйти"
+                                    CornerRadius="20"
+                                    HeightRequest="48"
+                                    BackgroundColor="#F3F4F6"
+                                    TextColor="Black"
+                                    Clicked="OnLogoutClicked" />
                         </VerticalStackLayout>
 
-                        <VerticalStackLayout Spacing="2"
-                                             Grid.Column="1"
-                                             HorizontalOptions="End">
-                            <Label Text="Всего опыта"
-                                   FontSize="12"
-                                   TextColor="#6B7280"
-                                   HorizontalOptions="End" />
-                            <Label x:Name="XpTotalLabel"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   TextColor="Black"
-                                   HorizontalOptions="End" />
-                        </VerticalStackLayout>
-                    </Grid>
+                        <!-- КНОПКИ ДЛЯ ГОСТЯ -->
+                        <VerticalStackLayout x:Name="GuestButtonsPanel"
+                                             Spacing="12"
+                                             Margin="0,16,0,0"
+                                             IsVisible="False">
 
-                    <!-- Прогресс до следующего уровня -->
-                    <!-- Прогресс до следующего уровня -->
-                    <VerticalStackLayout Spacing="4">
-                        <Label x:Name="XpProgressTextLabel"
-                                   FontSize="12"
+                            <Label Text="Вы не авторизованы"
+                                   FontSize="14"
+                                   HorizontalOptions="Center"
                                    TextColor="#6B7280" />
-                        <ProgressBar x:Name="XpProgressBar"
-                                     HeightRequest="8"
-                                     Progress="0" />            
+
+                            <Button Text="Войти"
+                                    CornerRadius="20"
+                                    HeightRequest="48"
+                                    BackgroundColor="#3B82F6"
+                                    TextColor="White"
+                                    Clicked="OnLoginClicked" />
+
+                            <Button Text="Зарегистрироваться"
+                                    CornerRadius="20"
+                                    HeightRequest="48"
+                                    BackgroundColor="#10B981"
+                                    TextColor="White"
+                                    Clicked="OnRegisterClicked" />
+                        </VerticalStackLayout>
+
                     </VerticalStackLayout>
+                </Frame>
 
-                </VerticalStackLayout>
-            </Border>
-
-            <!-- Кнопки -->
-            <VerticalStackLayout Spacing="12"
-                                 HorizontalOptions="Center">
-
-                <Button Text="Редактировать профиль"
-                        CornerRadius="20"
-                        HeightRequest="48"
-                        WidthRequest="260"
-                        BackgroundColor="#3B82F6"
-                        TextColor="White"
-                        Clicked="OnEditClicked" />
-
-                <Button Text="Выйти"
-                        CornerRadius="20"
-                        HeightRequest="48"
-                        WidthRequest="260"
-                        BackgroundColor="#F3F4F6"
-                        TextColor="Black"
-                        Clicked="OnLogoutClicked" />
             </VerticalStackLayout>
 
-        </VerticalStackLayout>
+        </Grid>
+    </ScrollView>
 
-    </Grid>
 </ContentPage>
