@@ -55,5 +55,9 @@ public partial class MainPage : ContentPage
             LoadingIndicator.IsRunning = false;
             LoginButton.IsEnabled = true;
         }
+    }    private async void OnRegisterNavTapped(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync(nameof(RegisterPage));
     }
+
 }

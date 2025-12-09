@@ -53,6 +53,20 @@
                                 BackgroundColor="#3B82F6"
                                 TextColor="White"
                                 Clicked="OnLoginClicked" />
+                        <HorizontalStackLayout HorizontalOptions="Center" Margin="0,8,0,0">
+                            <Label Text="Нет аккаунта?"
+                                   FontSize="14"
+                                   TextColor="#6B7280" />
+                            <Label Text=" Зарегистрироваться"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="#3B82F6">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnRegisterNavTapped" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </HorizontalStackLayout>
+
 
                         <ActivityIndicator x:Name="LoadingIndicator"
                                            IsVisible="False"

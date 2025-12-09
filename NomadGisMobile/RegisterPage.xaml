@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="NomadGisMobile.RegisterPage"
+             Title="Регистрация">
+
+    <ContentPage.Content>
+        <Grid Padding="24,40"
+              BackgroundColor="#F5F5F8">
+
+            <ScrollView>
+                <VerticalStackLayout Spacing="24">
+
+                    <!-- Заголовок -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Регистрация"
+                               FontSize="32"
+                               FontAttributes="Bold"
+                               TextColor="Black" />
+                        <Label Text="Создайте аккаунт, чтобы сохранять прогресс и маршруты."
+                               FontSize="14"
+                               TextColor="#6B7280" />
+                    </VerticalStackLayout>
+
+                    <!-- Карточка формы -->
+                    <Frame CornerRadius="24"
+                           Padding="20"
+                           BackgroundColor="White"
+                           HasShadow="True">
+
+                        <VerticalStackLayout Spacing="16">
+
+                            <!-- Email -->
+                            <Label Text="Email" FontSize="14" />
+                            <Entry x:Name="EmailEntry"
+                                   Placeholder="you@example.com"
+                                   Keyboard="Email" />
+
+                            <!-- Имя пользователя -->
+                            <Label Text="Имя пользователя" FontSize="14" />
+                            <Entry x:Name="UsernameEntry"
+                                   Placeholder="Ваш ник" />
+
+                            <!-- Пароль -->
+                            <Label Text="Пароль" FontSize="14" />
+                            <Entry x:Name="PasswordEntry"
+                                   Placeholder="••••••••"
+                                   IsPassword="True" />
+
+                            <!-- Повтор пароля -->
+                            <Label Text="Повторите пароль" FontSize="14" />
+                            <Entry x:Name="ConfirmPasswordEntry"
+                                   Placeholder="••••••••"
+                                   IsPassword="True" />
+
+                            <!-- Текст ошибки -->
+                            <Label x:Name="ErrorLabel"
+                                   TextColor="#DC2626"
+                                   FontSize="12"
+                                   IsVisible="False" />
+
+                            <!-- Кнопка регистрации -->
+                            <Button x:Name="RegisterButton"
+                                    Text="Зарегистрироваться"
+                                    CornerRadius="20"
+                                    HeightRequest="48"
+                                    BackgroundColor="#10B981"
+                                    TextColor="White"
+                                    Clicked="OnRegisterClicked" />
+
+                            <!-- Индикатор загрузки -->
+                            <ActivityIndicator x:Name="LoadingIndicator"
+                                               IsVisible="False"
+                                               IsRunning="False"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Ссылка Войти -->
+                    <HorizontalStackLayout HorizontalOptions="Center">
+                        <Label Text="Уже есть аккаунт?"
+                               FontSize="14"
+                               TextColor="#6B7280" />
+                        <Label Text=" Войти"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#3B82F6">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnLoginNavTapped" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </HorizontalStackLayout>
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>
