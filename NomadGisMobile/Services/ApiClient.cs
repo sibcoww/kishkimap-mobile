@@ -24,7 +24,7 @@ namespace NomadGisMobile.Services
             _httpClient = new HttpClient
             {
                 BaseAddress = new Uri("https://nomad-gis-api-7d6a.onrender.com"),
-                Timeout = TimeSpan.FromSeconds(15)
+                Timeout = TimeSpan.FromSeconds(60)
             };
 
             _jsonOptions = new JsonSerializerOptions

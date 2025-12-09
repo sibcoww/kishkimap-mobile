@@ -7,7 +7,6 @@ using Mapsui.Tiling;
 using Mapsui.UI.Maui;
 using Mapsui.Widgets;
 using Mapsui.Widgets.InfoWidgets;
-using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using NomadGisMobile.Services;
@@ -28,10 +27,7 @@ public partial class MapPage : ContentPage
     {
         InitializeComponent();
 
-        // MapControl теперь берём из XAML
         _mapControl = MapView;
-
-        // обработчик тапа по карте/маркеру
         _mapControl.Info += OnMapInfo;
 
         InitMap();
@@ -41,7 +37,6 @@ public partial class MapPage : ContentPage
 
     private void InitMap()
     {
-        // убираем лог-плашку
         LoggingWidget.ShowLoggingInMap = ActiveMode.No;
 
         _mapControl.Map = new MapsuiMap
@@ -52,7 +47,7 @@ public partial class MapPage : ContentPage
         var tileLayer = OpenStreetMap.CreateTileLayer();
         _mapControl.Map.Layers.Add(tileLayer);
 
-        // чистим виджеты с FPS/Performance, если есть
+        // убираем служебные виджеты (FPS и т.п.)
         if (_mapControl.Map.Widgets is ConcurrentQueue<IWidget> queue)
         {
             var all = queue.ToList();
@@ -95,20 +90,23 @@ public partial class MapPage : ContentPage
             if (points == null || points.Count == 0)
                 return;
 
-            // наш PNG-маркер
             var img = new Mapsui.Styles.Image
             {
-                // файл: Resources/Images/pointer2.png, Build Action: MauiImage
+                // Resources/Images/pointer2.png (MauiImage)
                 Source = "embedded://NomadGisMobile.Resources.Images.pointer2.png"
             };
 
             var imageStyle = new ImageStyle
             {
                 Image = img,
-                SymbolScale = 0.04f   // размер маркера
+                SymbolScale = 0.04f
             };
 
             var features = new List<IFeature>();
+
+            double minX = double.MaxValue, minY = double.MaxValue;
+            double maxX = double.MinValue, maxY = double.MinValue;
+            bool hasBounds = false;
 
             foreach (var p in points)
             {
@@ -120,41 +118,48 @@ public partial class MapPage : ContentPage
 
                 var feature = new PointFeature(point);
 
-                // сохраняем ВСЕ нужные данные в feature
                 feature["id"] = p.Id ?? "";
                 feature["name"] = p.Name ?? "";
                 feature["description"] = p.Description ?? "";
                 feature["lat"] = p.Latitude;
                 feature["lon"] = p.Longitude;
+                feature["imageUrl"] = p.ImageUrl ?? "";
 
                 feature.Styles.Clear();
                 feature.Styles.Add(imageStyle);
 
                 features.Add(feature);
+
+                if (!hasBounds)
+                {
+                    minX = maxX = point.X;
+                    minY = maxY = point.Y;
+                    hasBounds = true;
+                }
+                else
+                {
+                    if (point.X < minX) minX = point.X;
+                    if (point.X > maxX) maxX = point.X;
+                    if (point.Y < minY) minY = point.Y;
+                    if (point.Y > maxY) maxY = point.Y;
+                }
             }
 
-
-            if (features.Count == 0)
+            if (features.Count == 0 || !hasBounds)
                 return;
 
             var provider = new MemoryProvider(features);
             var layer = new Layer("Points")
             {
                 DataSource = provider,
-                Style = null // без стандартного белого кружка
+                Style = null
             };
 
             map.Layers.Add(layer);
 
-            // лёгкий авто-зум по всем точкам (если нужно)
-            var extent = provider.GetExtent();
-            if (extent != null)
-            {
-                // чуть-чуть отъедем, чтобы все влезли
-                var center = extent.Centroid;
-                var maxRes = map.Navigator.Resolutions?.FirstOrDefault() ?? map.Navigator.Viewport.Resolution;
-                map.Navigator.CenterOnAndZoomTo(center, maxRes / 50, 500);
-            }
+            // автоцентрирование по всем точкам
+            var box = new MRect(minX, minY, maxX, maxY);
+            map.Navigator.ZoomToBox(box, MBoxFit.Fit, 500);
         }
         catch (Exception ex)
         {
@@ -183,8 +188,8 @@ public partial class MapPage : ContentPage
 
         var name = f["name"]?.ToString();
         var description = f["description"]?.ToString();
+        var imageUrl = f["imageUrl"]?.ToString();
 
-        // плавно центрируем карту на маркере
         var worldPos = mapInfo.WorldPosition;
         if (worldPos != null)
         {
@@ -201,8 +206,25 @@ public partial class MapPage : ContentPage
                     ? "Описание отсутствует"
                     : description;
 
+            // картинка
+            if (!string.IsNullOrWhiteSpace(imageUrl))
+            {
+                try
+                {
+                    PointImage.Source = ImageSource.FromUri(new Uri(imageUrl));
+                    PointImageContainer.IsVisible = true;
+                }
+                catch
+                {
+                    PointImageContainer.IsVisible = false;
+                }
+            }
+            else
+            {
+                PointImageContainer.IsVisible = false;
+            }
+
             PointCard.IsVisible = true;
         });
     }
-
 }
