@@ -1,14 +1,138 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mapsui="clr-namespace:Mapsui.UI.Maui;assembly=Mapsui.UI.Maui"
              x:Class="NomadGisMobile.RoutesPage"
              Title="Маршруты">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="10">
-            <Label Text="Здесь будут маршруты"
-                   FontSize="20"
-                   HorizontalOptions="Center" />
-        </VerticalStackLayout>
-    </ScrollView>
+    <Grid Padding="20" BackgroundColor="#F5F5F8">
+
+        <ScrollView>
+            <VerticalStackLayout Spacing="20">
+
+                <!-- Заголовок -->
+                <Label Text="Маршрут"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="Black" />
+
+                <!-- Режим передвижения -->
+                <Frame Padding="12"
+                       BackgroundColor="White"
+                       CornerRadius="18"
+                       HasShadow="True">
+                    <HorizontalStackLayout Spacing="12">
+
+                        <Button x:Name="WalkModeBtn"
+                                Text="🚶 Пешком"
+                                CornerRadius="16"
+                                BackgroundColor="#3B82F6"
+                                TextColor="White"
+                                WidthRequest="130"/>
+
+                        <Button x:Name="CarModeBtn"
+                                Text="🚗 Машина"
+                                CornerRadius="16"
+                                BackgroundColor="#E5E7EB"
+                                TextColor="Black"
+                                WidthRequest="130"/>
+
+                    </HorizontalStackLayout>
+                </Frame>
+
+
+                <!-- Список точек -->
+                <VerticalStackLayout Spacing="12">
+
+                    <Label Text="Точки маршрута"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="Black" />
+
+                    <!-- Контейнер для динамического списка -->
+                    <VerticalStackLayout x:Name="RoutePointsContainer"
+                                         Spacing="8">
+                        <!-- Пример шаблона (создаётся из C#):
+                        <Frame Padding="12" CornerRadius="16">
+                            <HorizontalStackLayout>
+                                <Label Text="1. Название" />
+                                <Button Text="X" />
+                            </HorizontalStackLayout>
+                        </Frame>
+                        -->
+                    </VerticalStackLayout>
+
+                    <Button x:Name="ClearRouteBtn"
+                            Text="Очистить маршрут"
+                            BackgroundColor="#EF4444"
+                            TextColor="White"
+                            CornerRadius="18"
+                            HeightRequest="46" />
+
+                </VerticalStackLayout>
+
+
+                <!-- Мини-карта маршрута -->
+                <Frame Padding="0"
+                       HasShadow="True"
+                       BackgroundColor="White"
+                       CornerRadius="18"
+                       HeightRequest="200">
+
+                    <Grid>
+
+                        <mapsui:MapControl x:Name="MiniMap"
+                                           />
+
+                        <Label x:Name="MiniMapPlaceholder"
+                               Text="Маршрут не построен"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               TextColor="#6B7280"
+                               FontSize="16"
+                               IsVisible="True" />
+
+                    </Grid>
+
+                </Frame>
+
+
+                <!-- Информация о маршруте -->
+                <Frame Padding="16"
+                       BackgroundColor="White"
+                       CornerRadius="18"
+                       HasShadow="True">
+
+                    <VerticalStackLayout Spacing="6">
+
+                        <Label Text="Информация"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="Black" />
+
+                        <Label x:Name="DistanceLabel"
+                               Text="Расстояние: —"
+                               FontSize="14" />
+
+                        <Label x:Name="DurationLabel"
+                               Text="Время: —"
+                               FontSize="14" />
+
+                    </VerticalStackLayout>
+
+                </Frame>
+
+                <!-- Кнопка построения маршрута -->
+                <Button x:Name="BuildRouteBtn"
+                        Text="Построить маршрут"
+                        BackgroundColor="#10B981"
+                        TextColor="White"
+                        CornerRadius="20"
+                        HeightRequest="52" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
+
 </ContentPage>

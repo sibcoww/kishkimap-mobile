@@ -16,11 +16,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MapsuiMap = Mapsui.Map;
+using NomadGisMobile.Routing;
+
 
 namespace NomadGisMobile;
 
 public partial class MapPage : ContentPage
 {
+    private string? _currentPointId;
+    private string? _currentPointName;
+    private double _currentPointLat;
+    private double _currentPointLon;
+    private bool _hasCurrentPoint;
+
     private MapControl _mapControl;
 
     // поля для свайпа карточки
@@ -193,9 +201,24 @@ public partial class MapPage : ContentPage
 
         var f = mapInfo.Feature;
 
+        // читаем данные из feature
+        var id = f["id"]?.ToString();
         var name = f["name"]?.ToString();
         var description = f["description"]?.ToString();
         var imageUrl = f["imageUrl"]?.ToString();
+
+        double lat = 0;
+        double lon = 0;
+
+        if (f["lat"] is double latVal) lat = latVal;
+        if (f["lon"] is double lonVal) lon = lonVal;
+
+        // запоминаем текущую точку для кнопки "Добавить в маршрут"
+        _currentPointId = id;
+        _currentPointName = name;
+        _currentPointLat = lat;
+        _currentPointLon = lon;
+        _hasCurrentPoint = true;
 
         var worldPos = mapInfo.WorldPosition;
         if (worldPos != null)
@@ -213,7 +236,7 @@ public partial class MapPage : ContentPage
                     ? "Описание отсутствует"
                     : description;
 
-            // готовим список картинок для галереи
+            // готовим список картинок
             var images = new List<string>();
             if (!string.IsNullOrWhiteSpace(imageUrl))
                 images.Add(imageUrl);
@@ -271,6 +294,25 @@ public partial class MapPage : ContentPage
     {
         await HidePointCardAsync();
     }
+
+    private async void OnAddToRouteClicked(object sender, EventArgs e)
+    {
+        if (!_hasCurrentPoint)
+        {
+            await DisplayAlert("Маршрут", "Сначала выберите точку на карте.", "OK");
+            return;
+        }
+
+        RouteStore.AddPoint(
+            _currentPointId ?? "",
+            _currentPointName ?? "Точка",
+            _currentPointLat,
+            _currentPointLon);
+
+        await DisplayAlert("Маршрут", "Точка добавлена в маршрут.", "OK");
+    }
+
+
 
     // ----------------- СВАЙП ПО КАРТОЧКЕ -----------------
 

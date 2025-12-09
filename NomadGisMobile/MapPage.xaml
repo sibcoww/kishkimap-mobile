@@ -61,14 +61,25 @@
 
                     <!-- НАЗВАНИЕ -->
                     <Label x:Name="PointTitleLabel"
-                           FontSize="18"
-                           FontAttributes="Bold"
-                           TextColor="Black" />
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       TextColor="Black" />     
 
                     <!-- ОПИСАНИЕ -->
                     <Label x:Name="PointDescriptionLabel"
-                           FontSize="14"
-                           TextColor="#4B5563" />
+                       FontSize="14"
+                       TextColor="#4B5563" />
+
+                    <!-- КНОПКА "ДОБАВИТЬ В МАРШРУТ" -->
+                    <Button x:Name="AddToRouteButton"
+                        Text="Добавить в маршрут"
+                        HeightRequest="44"
+                        CornerRadius="20"
+                        Margin="0,8,0,0"
+                        BackgroundColor="#3B82F6"
+                        TextColor="White"
+                        Clicked="OnAddToRouteClicked" />
+
                 </VerticalStackLayout>
             </Grid>
         </Frame>
