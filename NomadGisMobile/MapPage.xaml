@@ -5,47 +5,72 @@
              x:Class="NomadGisMobile.MapPage"
              Title="Карта">
 
-    <Grid>
+    <Grid x:Name="RootGrid">
 
         <!-- КАРТА -->
         <mapsui:MapControl x:Name="MapView" />
 
-        <!-- КАРТОЧКА ТОЧКИ -->
+        <!-- ПОЛУПРОЗРАЧНЫЙ ФОН ПОД КАРТОЧКОЙ -->
+        <BoxView x:Name="DimOverlay"
+                 BackgroundColor="#80000000"
+                 IsVisible="False"
+                 Opacity="0">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnOverlayTapped" />
+            </BoxView.GestureRecognizers>
+        </BoxView>
+
+        <!-- КАРТОЧКА-ШАЙБА (BOTTOM SHEET) -->
         <Frame x:Name="PointCard"
                IsVisible="False"
-               CornerRadius="20"
+               CornerRadius="24"
                HasShadow="True"
                Padding="16"
-               Margin="16"
+               Margin="12,0,12,20"
                BackgroundColor="White"
-               VerticalOptions="End">
+               VerticalOptions="End"
+               TranslationY="320">
 
-            <VerticalStackLayout Spacing="8">
+            <Grid>
+                <Grid.GestureRecognizers>
+                    <!-- свайп по карточке -->
+                    <PanGestureRecognizer PanUpdated="OnCardPanUpdated" />
+                </Grid.GestureRecognizers>
 
-                <!-- Картинка места -->
-                <Frame HeightRequest="180"
-                       CornerRadius="16"
-                       HasShadow="False"
-                       Padding="0"
-                       BackgroundColor="#E5E7EB"
-                       x:Name="PointImageContainer"
-                       IsVisible="False">
-                    <Image x:Name="PointImage"
-                           Aspect="AspectFill" />
-                </Frame>
+                <VerticalStackLayout Spacing="10">
 
-                <!-- Название -->
-                <Label x:Name="PointTitleLabel"
-                       FontSize="18"
-                       FontAttributes="Bold"
-                       TextColor="Black" />
+                    <!-- ГАЛЕРЕЯ КАРТИНОК -->
+                    <CollectionView x:Name="PointImagesView"
+                                    HeightRequest="180"
+                                    IsVisible="False"
+                                    ItemsLayout="HorizontalList"
+                                    Margin="0,0,0,4">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame Padding="0"
+                                       Margin="0,0,12,0"
+                                       CornerRadius="18"
+                                       HasShadow="False"
+                                       BackgroundColor="#E5E7EB">
+                                    <Image Aspect="AspectFill"
+                                           Source="{Binding .}" />
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
 
-                <!-- Описание -->
-                <Label x:Name="PointDescriptionLabel"
-                       FontSize="14"
-                       TextColor="#4B5563" />
+                    <!-- НАЗВАНИЕ -->
+                    <Label x:Name="PointTitleLabel"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="Black" />
 
-            </VerticalStackLayout>
+                    <!-- ОПИСАНИЕ -->
+                    <Label x:Name="PointDescriptionLabel"
+                           FontSize="14"
+                           TextColor="#4B5563" />
+                </VerticalStackLayout>
+            </Grid>
         </Frame>
 
     </Grid>

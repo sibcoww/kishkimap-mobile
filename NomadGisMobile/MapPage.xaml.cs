@@ -23,6 +23,10 @@ public partial class MapPage : ContentPage
 {
     private MapControl _mapControl;
 
+    // поля для свайпа карточки
+    private double _cardStartTranslationY;
+    private bool _isDraggingCard;
+
     public MapPage()
     {
         InitializeComponent();
@@ -123,6 +127,9 @@ public partial class MapPage : ContentPage
                 feature["description"] = p.Description ?? "";
                 feature["lat"] = p.Latitude;
                 feature["lon"] = p.Longitude;
+
+                // пока API отдаёт одну картинку – храним одну ссылку,
+                // но галерея уже готова к нескольким
                 feature["imageUrl"] = p.ImageUrl ?? "";
 
                 feature.Styles.Clear();
@@ -196,7 +203,7 @@ public partial class MapPage : ContentPage
             _mapControl.Map.Navigator.CenterOn(worldPos, duration: 400);
         }
 
-        MainThread.BeginInvokeOnMainThread(() =>
+        MainThread.BeginInvokeOnMainThread(async () =>
         {
             PointTitleLabel.Text =
                 string.IsNullOrWhiteSpace(name) ? "Место" : name;
@@ -206,25 +213,100 @@ public partial class MapPage : ContentPage
                     ? "Описание отсутствует"
                     : description;
 
-            // картинка
+            // готовим список картинок для галереи
+            var images = new List<string>();
             if (!string.IsNullOrWhiteSpace(imageUrl))
+                images.Add(imageUrl);
+
+            if (images.Count > 0)
             {
-                try
-                {
-                    PointImage.Source = ImageSource.FromUri(new Uri(imageUrl));
-                    PointImageContainer.IsVisible = true;
-                }
-                catch
-                {
-                    PointImageContainer.IsVisible = false;
-                }
+                PointImagesView.ItemsSource = images;
+                PointImagesView.IsVisible = true;
             }
             else
             {
-                PointImageContainer.IsVisible = false;
+                PointImagesView.IsVisible = false;
+                PointImagesView.ItemsSource = null;
             }
 
-            PointCard.IsVisible = true;
+            await ShowPointCardAsync();
         });
+    }
+
+    // ----------------- ПОКАЗ / СКРЫТИЕ КАРТОЧКИ -----------------
+
+    private async Task ShowPointCardAsync()
+    {
+        // фон
+        DimOverlay.IsVisible = true;
+        await DimOverlay.FadeTo(0.3, 150, Easing.CubicIn);
+
+        PointCard.IsVisible = true;
+        PointCard.Opacity = 0;
+        PointCard.TranslationY = 320;
+
+        // плавный выезд снизу
+        await Task.WhenAll(
+            PointCard.FadeTo(1, 180, Easing.CubicInOut),
+            PointCard.TranslateTo(0, 0, 220, Easing.CubicOut)
+        );
+    }
+
+    private async Task HidePointCardAsync()
+    {
+        if (!PointCard.IsVisible)
+            return;
+
+        await Task.WhenAll(
+            PointCard.TranslateTo(0, 320, 200, Easing.CubicIn),
+            PointCard.FadeTo(0, 200, Easing.CubicIn),
+            DimOverlay.FadeTo(0, 150, Easing.CubicOut)
+        );
+
+        PointCard.IsVisible = false;
+        DimOverlay.IsVisible = false;
+    }
+
+    private async void OnOverlayTapped(object sender, TappedEventArgs e)
+    {
+        await HidePointCardAsync();
+    }
+
+    // ----------------- СВАЙП ПО КАРТОЧКЕ -----------------
+
+    private async void OnCardPanUpdated(object sender, PanUpdatedEventArgs e)
+    {
+        switch (e.StatusType)
+        {
+            case GestureStatus.Started:
+                _isDraggingCard = true;
+                _cardStartTranslationY = PointCard.TranslationY;
+                break;
+
+            case GestureStatus.Running:
+                if (!_isDraggingCard)
+                    return;
+
+                var newY = _cardStartTranslationY + e.TotalY;
+                if (newY < 0) newY = 0;           // вверх не тянем
+                PointCard.TranslationY = newY;
+                break;
+
+            case GestureStatus.Completed:
+            case GestureStatus.Canceled:
+                _isDraggingCard = false;
+
+                // если утащили вниз больше порога – закрываем
+                if (PointCard.TranslationY > 120)
+                {
+                    await HidePointCardAsync();
+                }
+                else
+                {
+                    // иначе возвращаем назад
+                    await PointCard.TranslateTo(0, 0, 200, Easing.SpringOut);
+                }
+                break;
+        }
     }
 }
